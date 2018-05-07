@@ -1,9 +1,10 @@
 {
-  "name": "passport-twitch",
-  "version": "1.0.3",
-  "description": "Twitch (OAuth) authentication strategies for Passport.",
+  "name": "passport-twitch-new",
+  "version": "0.0.1-alpha",
+  "description": "Twitch (OAuth) authentication strategies using the new Twitch API for Passport.",
   "keywords": [
     "passport",
+    "new",
     "twitch",
     "auth",
     "authn",
@@ -15,15 +16,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/Schmoopiie/passport-twitch.git"
+    "url": "git://github.com/nigh7sh4de/passport-twitch.git"
   },
   "bugs": {
-    "url": "http://github.com/Schmoopiie/passport-twitch/issues"
+    "url": "http://github.com/nigh7sh4de/passport-twitch/issues"
   },
   "author": {
-    "name": "Schmoopiie",
-    "email": "Schmoopiie@gmail.com",
-    "url": "http://www.schmoopiie.com/"
+    "name": "Dennis Plotnik",
+    "email": "plotnikd@gmail.com",
+    "url": "http://github.com/nigh7sh4de"
   },
   "licenses": [
     {
@@ -31,7 +32,7 @@
       "url": "http://www.opensource.org/licenses/MIT"
     }
   ],
-  "main": "./lib/passport-twitch",
+  "main": "./index.js",
   "dependencies": {
     "passport-oauth2": "^1.1.2",
     "pkginfo": "0.2.x"
@@ -44,10 +45,10 @@
   },
   "maintainers": [
     {
-      "name": "Schmoopiie",
-      "email": "Schmoopiie@gmail.com"
+      "name": "Dennis Plotnik",
+      "email": "plotnikd@gmail.com"
     }
   ],
   "directories": {},
-  "homepage": "https://github.com/Schmoopiie/passport-twitch"
+  "homepage": "https://github.com/nigh7sh4de/passport-twitch"
 }
