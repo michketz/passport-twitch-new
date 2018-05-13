@@ -71,22 +71,14 @@ class Strategy extends OAuth2Strategy {
      * @api protected
      */
     userProfile(token, done) {
-        this._oauth2.get("https://api.twitch.tv/helix/users", accessToken, function (err, body, res) {
+        this._oauth2.get("https://api.twitch.tv/helix/users", token, function (err, body, res) {
             if (err) { return done(new InternalOAuthError("failed to fetch user profile", err)); }
     
             try {
-                var json = JSON.parse(body);
-    
-                var profile = { provider: "twitch" };
-                profile.id = json._id;
-                profile.username = json.name;
-                profile.displayName = json.display_name;
-                profile.email = json.email;
-    
-                profile._raw = body;
-                profile._json = json;
-    
-                done(null, profile);
+                done(null, {
+                    ...JSON.parse(body).data[0],
+                    provider: 'twitch'
+                });
             } catch(e) {
                 done(e);
             }
