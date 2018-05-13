@@ -1,8 +1,9 @@
 /**
  * Module dependencies.
  */
-var OAuth2Strategy = require("passport-oauth2");
-var InternalOAuthError = OAuth2Strategy.InternalOAuthError;
+var jwt = require('jsonwebtoken')
+var OAuth2Strategy = require("passport-oauth2")
+var InternalOAuthError = OAuth2Strategy.InternalOAuthError
 
 
 /**
@@ -20,6 +21,7 @@ var InternalOAuthError = OAuth2Strategy.InternalOAuthError;
  *   - `clientID`      your Twitch application"s client id
  *   - `clientSecret`  your Twitch application"s client secret
  *   - `callbackURL`   URL to which Twitch will redirect the user after granting authorization
+ *   - `pem`           Signing certificate used for decoding a user's OIDC token
  *
  * Examples:
  *
@@ -30,10 +32,10 @@ var InternalOAuthError = OAuth2Strategy.InternalOAuthError;
  *       },
  *       function(accessToken, refreshToken, profile, done) {
  *         User.findOrCreate(..., function (err, user) {
- *           done(err, user);
- *         });
+ *           done(err, user)
+ *         })
  *       }
- *     ));
+ *     ))
  *
  * @param {Object} options
  * @param {Function} verify
@@ -41,65 +43,33 @@ var InternalOAuthError = OAuth2Strategy.InternalOAuthError;
  */
 class Strategy extends OAuth2Strategy {
     constructor(options, verify) {
+        options = options || {}
+        options.authorizationURL = options.authorizationURL || "https://id.twitch.tv/oauth2/authorize"
+        options.tokenURL = options.tokenURL || "https://id.twitch.tv/oauth2/token"
+        options.parseIdToken = !!options.pem
+        
         super(options, verify)
-        options = options || {};
-        options.authorizationURL = options.authorizationURL || "https://id.twitch.tv/oauth2/authorize";
-        options.tokenURL = options.tokenURL || "https://id.twitch.tv/oauth2/token";
 
-        OAuth2Strategy.call(this, options, verify);
-        this.name = "twitch";
+        this.name = "twitch"
+        this.pem = options.pem
 
-        this._oauth2.setAuthMethod("OAuth");
-        this._oauth2.useAuthorizationHeaderforGET(true);
+        this._oauth2.setAuthMethod("Bearer")
+        this._oauth2.useAuthorizationHeaderforGET(true)
+    }
+
+    userProfile(token, done) {
+        if (!this.pem) return done(null, {})
+
+        jwt.verify(token, this.pem, done)
     }
 
     authorizationParams(options) {
-        var params = {};
+        var params = {}
         if (typeof options.forceVerify !== "undefined") {
-            params.force_verify = !!options.forceVerify;
+            params.force_verify = !!options.forceVerify
         }
-        return params;
-    };
+        return params
+    }
 }
 
-// /**
-//  * Retrieve user profile from Twitch.
-//  *
-//  * This function constructs a normalized profile, with the following properties:
-//  *
-//  *   - `provider`         always set to `twitch`
-//  *   - `id`
-//  *   - `username`
-//  *   - `displayName`
-//  *
-//  * @param {String} accessToken
-//  * @param {Function} done
-//  * @api protected
-//  */
-// Strategy.prototype.userProfile = function(accessToken, done) {
-//     this._oauth2.get("https://api.twitch.tv/kraken/user", accessToken, function (err, body, res) {
-//         if (err) { return done(new InternalOAuthError("failed to fetch user profile", err)); }
-
-//         try {
-//             var json = JSON.parse(body);
-
-//             var profile = { provider: "twitch" };
-//             profile.id = json._id;
-//             profile.username = json.name;
-//             profile.displayName = json.display_name;
-//             profile.email = json.email;
-
-//             profile._raw = body;
-//             profile._json = json;
-
-//             done(null, profile);
-//         } catch(e) {
-//             done(e);
-//         }
-//     });
-// };
-
-/**
- * Expose `Strategy`.
- */
-module.exports = Strategy;
+module.exports = Strategy
