@@ -46,7 +46,6 @@ class Strategy extends OAuth2Strategy {
         options = options || {}
         options.authorizationURL = options.authorizationURL || "https://id.twitch.tv/oauth2/authorize"
         options.tokenURL = options.tokenURL || "https://id.twitch.tv/oauth2/token"
-        options.parseIdToken = !!options.pem
         
         super(options, verify)
 
@@ -56,11 +55,42 @@ class Strategy extends OAuth2Strategy {
         this._oauth2.setAuthMethod("Bearer")
         this._oauth2.useAuthorizationHeaderforGET(true)
     }
-
+    
+    /**
+     * Retrieve user profile from Twitch.
+     *
+     * This function constructs a normalized profile, with the following properties:
+     *
+     *   - `provider`         always set to `twitch`
+     *   - `id`
+     *   - `username`
+     *   - `displayName`
+     *
+     * @param {String} accessToken
+     * @param {Function} done
+     * @api protected
+     */
     userProfile(token, done) {
-        if (!this.pem) return done(null, {})
-
-        jwt.verify(token, this.pem, done)
+        this._oauth2.get("https://api.twitch.tv/helix/users", accessToken, function (err, body, res) {
+            if (err) { return done(new InternalOAuthError("failed to fetch user profile", err)); }
+    
+            try {
+                var json = JSON.parse(body);
+    
+                var profile = { provider: "twitch" };
+                profile.id = json._id;
+                profile.username = json.name;
+                profile.displayName = json.display_name;
+                profile.email = json.email;
+    
+                profile._raw = body;
+                profile._json = json;
+    
+                done(null, profile);
+            } catch(e) {
+                done(e);
+            }
+        });
     }
 
     authorizationParams(options) {
