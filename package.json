@@ -36,7 +36,7 @@
   "dependencies": {
     "jsonwebtoken": "^8.2.1",
     "passport-oauth2": "^1.4.0",
-    "pkginfo": "0.2.x"
+    "pkginfo": "0.4.x"
   },
   "devDependencies": {
     "vows": "0.6.x"
